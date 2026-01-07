@@ -7,12 +7,24 @@ from logger import log_event
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
+        # Generate random points for lumpy look
+        self.points = []
+        angle_step = 30  # degrees
+        for angle in range(0, 360, angle_step):
+            # Randomize radius slightly
+            r = self.radius * random.uniform(0.8, 1.2)
+            # Create point
+            vec = pygame.Vector2(0, r).rotate(angle)
+            self.points.append(vec)
 
     def draw(self, screen):
-        pygame.draw.circle(screen, "white", self.position, self.radius, LINE_WIDTH)
+        # Transform local points to world coordinates
+        world_points = [self.position + p for p in self.points]
+        pygame.draw.polygon(screen, "white", world_points, LINE_WIDTH)
 
     def update(self, dt):
         self.position += self.velocity * dt
+        self.wrap_position()
 
     def split(self):
         oldRadius = self.radius
